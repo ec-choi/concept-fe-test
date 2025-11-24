@@ -7,14 +7,15 @@ export const http = ky.create({
     'Content-Type': 'application/json',
   },
   hooks: {
-    beforeRequest: [(request) => {}],
+    beforeRequest: [() => {}],
     afterResponse: [
       async (_request, _options, response) => {
         if (!response.ok) {
           // 공통 에러 처리 로직??
           // if (response.status === 401) { ... }
         }
-        return response.json();
+        // console.log(await response.clone().json());
+        return response;
       },
     ],
   },
