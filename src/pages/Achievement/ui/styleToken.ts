@@ -1,0 +1,7 @@
+export const HEIGHT_TOKEN = {
+  FILTER: 72,
+  FOOTER: 130,
+
+  CHIP_FILTER: 64,
+  TABLE_HEADER: 34,
+};

@@ -1,34 +1,48 @@
-import { achievementStyle } from '@/pages/Achievement/Achievement.style';
-import { Students } from '@/widgets/Nav/Nav';
-import { studentApi } from '@/entities/student/api';
+import {
+  achievementSectionStyle,
+  achievementStyle,
+} from '@/pages/Achievement/Achievement.style';
+import { Nav } from '@/widgets/Nav/Nav';
 import { generatePath, redirect, type LoaderFunctionArgs } from 'react-router';
 import { ROOT_WITH_STUDENT_ID } from '@/app/routes/router';
 import { useLoaderData } from 'react-router';
 import { queryClient } from '@/shared/lib/queryClient';
+import { sudentQueries } from '@/entities/student/api/queries';
+import { gradeQueries } from '@/entities/grade/api/queries';
+import { Filter } from '@/pages/Achievement/ui/Filter/Filter';
+import { Footer } from '@/pages/Achievement/ui/Footer/Footer';
+import { AchievementContent } from '@/pages/Achievement/ui/AchievementContent/AchievementContent';
+import { AchievementProvider } from '@/pages/Achievement/store/context';
 
 export const AchievementPage = () => {
-  const { students } = useLoaderData();
+  const { students, grades, studentId } = useLoaderData();
 
   return (
-    <div css={achievementStyle}>
-      <Students students={students} />
-      <div>ff</div>
-    </div>
+    <AchievementProvider key={studentId} initialGradeKey={grades[0].key}>
+      <main css={achievementStyle}>
+        <Nav students={students} />
+        <section css={achievementSectionStyle}>
+          <Filter grades={grades} />
+          <AchievementContent />
+          <Footer />
+        </section>
+      </main>
+    </AchievementProvider>
   );
 };
 
 AchievementPage.loader = async ({ params }: LoaderFunctionArgs) => {
   const studentId = params.studentId;
-  const response = await queryClient.ensureQueryData({
-    queryKey: ['students'],
-    queryFn: () => studentApi.getStudents(),
-  });
+
+  const _students = queryClient.ensureQueryData(sudentQueries.student());
+  const _grades = queryClient.ensureQueryData(gradeQueries.grade());
+  const [students, grades] = await Promise.all([_students, _grades]);
   if (!studentId) {
-    const rou = generatePath(ROOT_WITH_STUDENT_ID, {
-      studentId: response[0].id,
+    const redirectRoute = generatePath(ROOT_WITH_STUDENT_ID, {
+      studentId: students[0].id,
     });
-    return redirect(rou);
+    return redirect(redirectRoute);
   } else {
-    return { students: response };
+    return { students, grades, studentId };
   }
 };

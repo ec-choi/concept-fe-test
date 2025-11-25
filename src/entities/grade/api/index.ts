@@ -3,6 +3,6 @@ import { http } from '@/shared/lib/http';
 
 export const gradeApi = {
   getGrades: async () => {
-    return await http.get<Grade[]>('grades');
+    return (await http.get<Grade[]>('grades')).json();
   },
 };
