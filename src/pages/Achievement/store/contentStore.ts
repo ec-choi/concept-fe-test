@@ -3,7 +3,10 @@ import type {
   LittleChapter,
   MiddleChapter,
 } from '@/pages/Achievement/hooks/useStudentAchievement';
-import type { DIFFICULTY_TYPE } from '@/entities/typeChip/model/types';
+import type {
+  DIFFICULTY_TYPE,
+  TypeChip,
+} from '@/entities/typeChip/model/types';
 import { create } from 'zustand';
 import {
   getDifficultyGroupCheckState,
@@ -12,14 +15,14 @@ import {
 } from '@/pages/Achievement/helper/checkState';
 
 type ContentStoreType = {
-  selectedChipIds: Set<number>;
+  selectedChipIds: Set<TypeChip['conceptChipId']>;
 };
 
 type ContentStoreActionType = {
-  toggleChip: (chipId: number) => void;
+  toggleChip: (chipId: TypeChip['conceptChipId']) => void;
   // 난도 선택 체크
   toggleDifficultyGroup: (
-    littleChapterId: number,
+    littleChapterId: LittleChapter['littleChapterId'],
     difficulty: DIFFICULTY_TYPE,
     chips: ChipWithAchievement[],
   ) => void;
@@ -30,9 +33,11 @@ type ContentStoreActionType = {
     middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
   ) => void;
   // 필터링된 칩 ID 목록 추출
-  getFilteredSelectedChips: (filteredChipIds: number[]) => Set<number>;
+  getFilteredSelectedChips: (
+    filteredChipIds: TypeChip['conceptChipId'][],
+  ) => Set<TypeChip['conceptChipId']>;
   // 필터링된 칩 ID 목록과 동기화
-  syncWithFilteredChips: (filteredChipIds: number[]) => void;
+  syncWithFilteredChips: (filteredChipIds: TypeChip['conceptChipId'][]) => void;
   resetSelection: () => void;
 };
 
