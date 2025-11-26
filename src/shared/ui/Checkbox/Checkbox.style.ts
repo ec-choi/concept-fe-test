@@ -10,7 +10,7 @@ export const checkboxRootStyle = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid ${color.gray500};
+  border: 1px solid ${color.gray400};
   cursor: pointer;
 
   &[data-state='indeterminate'] {

@@ -12,16 +12,21 @@ type ContentStoreType = {
 
 type ContentStoreActionType = {
   toggleChip: (chipId: number) => void;
+  // 난도 선택 체크
   toggleDifficultyGroup: (
     littleChapterId: number,
     difficulty: DIFFICULTY_TYPE,
     chips: ChipWithAchievement[],
   ) => void;
+  // 소단원 선택 체크
   toggleLittleChapter: (littleChapter: LittleChapter) => void;
+  // 중단원 선택 체크
   toggleMiddleChapter: (
     middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
   ) => void;
+  // 필터링된 칩 ID 목록 추출
   getFilteredSelectedChips: (filteredChipIds: number[]) => Set<number>;
+  // 필터링된 칩 ID 목록과 동기화
   syncWithFilteredChips: (filteredChipIds: number[]) => void;
   resetSelection: () => void;
 };

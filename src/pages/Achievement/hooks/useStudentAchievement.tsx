@@ -1,5 +1,8 @@
 import { achievementQueries } from '@/entities/achievement/api/queries';
-import type { ACHIEVEMENT_GRADE } from '@/entities/achievement/model/types';
+import type {
+  Achievement,
+  ACHIEVEMENT_GRADE,
+} from '@/entities/achievement/model/types';
 import type { Student } from '@/entities/student/model/types';
 import type {
   DIFFICULTY_TYPE,
@@ -65,36 +68,45 @@ export const useStudentAchievement = ({
     ],
   });
 
-  const chips = useMemo(() => {
-    return typeChips?.data.filter((chip) => {
+  const chipMap = useMemo(() => {
+    const map = new Map<TypeChip['id'], TypeChip>();
+    typeChips?.data.forEach((chip) => {
       if (isRecommendOnly) {
-        return chip.recommended;
+        if (chip.recommended) {
+          map.set(chip.id, chip);
+        }
+      } else {
+        map.set(chip.id, chip);
       }
-      return true;
     });
+    return map;
   }, [typeChips, isRecommendOnly]);
 
   const originStudentAchievementChips = useMemo(() => {
     return studentAchievement?.data || [];
   }, [studentAchievement]);
 
-  const filteredStudentAchievementChips = useMemo(() => {
-    return originStudentAchievementChips.filter((achievement) => {
-      return (
+  const filteredStudentAchievementChipMap = useMemo(() => {
+    const map = new Map<Achievement['typeChipId'], Achievement>();
+    originStudentAchievementChips.forEach((achievement) => {
+      if (
         achievementGrades.length === 0 ||
         achievementGrades.includes(achievement.achievement)
-      );
+      ) {
+        map.set(achievement.typeChipId, achievement);
+      }
     });
+    return map;
   }, [originStudentAchievementChips, achievementGrades]);
 
   const structuredData = useMemo(() => {
     const result: {
-      isAllEmpty: boolean; // 필터링 적용 후 비어있는지 여부
-      isBasicColEmpty: boolean; // 총 개수 중 기본 난이도 칼럼이 비어있는지 여부
-      isIntermediateColEmpty: boolean; // 총 개수 중 중간 난이도 칼럼이 비어있는지 여부
-      isAdvancedColEmpty: boolean; // 총 개수 중 고급 난이도 칼럼이 비어있는지 여부
-      content: MiddleChapter; // 중단원 데이터
-      achievementCounts: Record<ACHIEVEMENT_GRADE, number>; // 성취도별 개수(필터링 적용)
+      isAllEmpty: boolean; // 비어있는지 여부(모든 필터링 적용)
+      isBasicColEmpty: boolean; // 총 개수 중 기본 난이도 칼럼이 비어있는지 여부(모든 필터링 적용)
+      isIntermediateColEmpty: boolean; // 총 개수 중 중간 난이도 칼럼이 비어있는지 여부(모든 필터링 적용)
+      isAdvancedColEmpty: boolean; // 총 개수 중 고급 난이도 칼럼이 비어있는지 여부(모든 필터링 적용)
+      content: MiddleChapter; // 중단원 데이터(모든 필터링 적용)
+      achievementCounts: Record<ACHIEVEMENT_GRADE, number>; // 성취도별 개수(난이도 필터링만 적용)
     } = {
       isAllEmpty: true,
       isBasicColEmpty: true,
@@ -112,17 +124,15 @@ export const useStudentAchievement = ({
       },
     };
     if (
-      !chips ||
-      !filteredStudentAchievementChips ||
+      !chipMap ||
+      !filteredStudentAchievementChipMap ||
       originStudentAchievementChips.length === 0
     )
       return result;
+
     originStudentAchievementChips.forEach((studentAchievementChip) => {
       // 1. 성취도과 칩정보를 매칭하기 위해 칩 찾기(학생성취도와 유형칩은 항상 1:1 매칭으로 갯수가 같음)
-      const chip = chips?.find(
-        (chip) => chip.id === studentAchievementChip.typeChipId,
-      );
-
+      const chip = chipMap.get(studentAchievementChip.typeChipId);
       if (!chip) return;
       // 2. achievementCounts 계산
       if (isRecommendOnly) {
@@ -134,9 +144,8 @@ export const useStudentAchievement = ({
       }
       // 3. 이하 필털이 된 유형칩 계산
       const filteredStudentAchievementChip =
-        filteredStudentAchievementChips.find((achievement) => {
-          return achievement.typeChipId === chip.id;
-        });
+        filteredStudentAchievementChipMap.get(chip.id);
+
       let _chip: ChipWithAchievement | undefined;
       if (filteredStudentAchievementChip?.typeChipId === chip.id) {
         _chip = {
@@ -193,14 +202,13 @@ export const useStudentAchievement = ({
 
     return result;
   }, [
-    chips,
-    filteredStudentAchievementChips,
+    chipMap,
+    filteredStudentAchievementChipMap,
     originStudentAchievementChips,
     isRecommendOnly,
   ]);
 
   return {
-    chips,
     studentAchievement,
     structuredData,
     isFetching: isTypeChipsFetching || isStudentAchievementFetching,
