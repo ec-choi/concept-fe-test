@@ -11,13 +11,13 @@ import type {
 } from '@/pages/Achievement/model/types';
 import { LittleChapterSection } from './LittleChapterSection';
 import {
-  accordionRootStyle,
   accordionHeaderStyle,
   accordionTriggerStyle,
   accordionContentStyle,
 } from './AchievementContent.style';
 
 type MiddleChapterAccordionProps = {
+  accordionKey: string;
   middleChapter: MiddleChapterValue;
   allMiddleChapters: MiddleChapterValue[];
   structuredData: StructuredData;
@@ -29,8 +29,8 @@ type MiddleChapterAccordionProps = {
 };
 
 export const MiddleChapterAccordion = ({
+  accordionKey,
   middleChapter,
-  allMiddleChapters,
   structuredData,
   selectedChipIds,
   onToggleMiddleChapter,
@@ -44,56 +44,47 @@ export const MiddleChapterAccordion = ({
   );
 
   return (
-    <Accordion.Root
-      type="multiple"
-      css={accordionRootStyle}
-      key={middleChapter.middleChapterId}
-      defaultValue={allMiddleChapters.map(
-        (mc) => `middle-${mc.middleChapterId}`,
-      )}
-    >
-      <Accordion.Item value={`middle-${middleChapter.middleChapterId}`}>
-        <Accordion.Header css={accordionHeaderStyle}>
-          <Accordion.Trigger css={accordionTriggerStyle} asChild>
-            <div>
-              <span className="accordion-trigger-icon">
-                <Icon name="icon_arrow_down" size={24} />
-              </span>
-              <Checkbox
-                checked={
-                  middleChapterCheckState.indeterminate
-                    ? 'indeterminate'
-                    : middleChapterCheckState.checked
-                }
-                onCheckedChange={() => {
-                  onToggleMiddleChapter(middleChapter);
-                }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                }}
-              />
-              <label htmlFor={`middle-${middleChapter.middleChapterId}`}>
-                {middleChapter.middleChapterName}
-              </label>
-            </div>
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Content css={accordionContentStyle}>
-          {Array.from(middleChapter.littleChapters.values()).map(
-            (littleChapter) => (
-              <LittleChapterSection
-                key={littleChapter.littleChapterId}
-                littleChapter={littleChapter}
-                structuredData={structuredData}
-                selectedChipIds={selectedChipIds}
-                onToggleLittleChapter={onToggleLittleChapter}
-                onToggleDifficultyGroup={onToggleDifficultyGroup}
-                onToggleChip={onToggleChip}
-              />
-            ),
-          )}
-        </Accordion.Content>
-      </Accordion.Item>
-    </Accordion.Root>
+    <Accordion.Item value={accordionKey}>
+      <Accordion.Header css={accordionHeaderStyle}>
+        <Accordion.Trigger css={accordionTriggerStyle} asChild>
+          <div>
+            <span className="accordion-trigger-icon">
+              <Icon name="icon_arrow_down" size={24} />
+            </span>
+            <Checkbox
+              checked={
+                middleChapterCheckState.indeterminate
+                  ? 'indeterminate'
+                  : middleChapterCheckState.checked
+              }
+              onCheckedChange={() => {
+                onToggleMiddleChapter(middleChapter);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+              }}
+            />
+            <label htmlFor={`middle-${middleChapter.middleChapterId}`}>
+              {middleChapter.middleChapterName}
+            </label>
+          </div>
+        </Accordion.Trigger>
+      </Accordion.Header>
+      <Accordion.Content css={accordionContentStyle}>
+        {Array.from(middleChapter.littleChapters.values()).map(
+          (littleChapter) => (
+            <LittleChapterSection
+              key={littleChapter.littleChapterId}
+              littleChapter={littleChapter}
+              structuredData={structuredData}
+              selectedChipIds={selectedChipIds}
+              onToggleLittleChapter={onToggleLittleChapter}
+              onToggleDifficultyGroup={onToggleDifficultyGroup}
+              onToggleChip={onToggleChip}
+            />
+          ),
+        )}
+      </Accordion.Content>
+    </Accordion.Item>
   );
 };

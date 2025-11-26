@@ -33,10 +33,7 @@ export const LittleChapterSection = ({
   if (littleChapter.isEmpty) return null;
 
   return (
-    <section
-      css={littleChapterSectionStyle}
-      key={littleChapter.littleChapterId}
-    >
+    <section css={littleChapterSectionStyle}>
       <h3 className="first-column content-item little-chapter">
         <Checkbox
           id={`little-chapter-${littleChapter.littleChapterId}`}

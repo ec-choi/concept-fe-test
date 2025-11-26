@@ -2,6 +2,7 @@ import {
   achievementContentStyle,
   achievementScrollRootStyle,
   tableHeaderStyle,
+  accordionRootStyle,
 } from '@/pages/Achievement/ui/AchievementContent/AchievementContent.style';
 import { ScrollRoot } from '@/shared/ui/Scroll/Scroll';
 import { useStudentAchievement } from '@/pages/Achievement/hooks/useStudentAchievement';
@@ -20,6 +21,7 @@ import { useMemo, useEffect } from 'react';
 import { EmptyCase } from '@/pages/Achievement/ui/EmptyCase/EmptyCase';
 import { MiddleChapterAccordion } from './MiddleChapterAccordion';
 import { getDifficultyEmptyClassName } from '@/pages/Achievement/helper/difficultyUtils';
+import * as Accordion from '@radix-ui/react-accordion';
 
 export const AchievementContent = () => {
   const { studentId } = useLoaderData<typeof AchievementPage.loader>();
@@ -49,7 +51,7 @@ export const AchievementContent = () => {
   // 필터가 변경되면 선택된 칩을 필터링된 칩과 동기화
   useEffect(() => {
     syncWithFilteredChips(filteredChipIds);
-  }, [filteredChipIds, syncWithFilteredChips]);
+  }, [filteredChipIds]);
 
   const isEmpty = !isFetching && structuredData.isAllEmpty;
   const allMiddleChapters = Array.from(structuredData.content.values());
@@ -92,21 +94,32 @@ export const AchievementContent = () => {
           }
         />
       ) : (
-        <ScrollRoot css={achievementScrollRootStyle}>
-          {allMiddleChapters.map((middleChapter) => (
-            <MiddleChapterAccordion
-              key={middleChapter.middleChapterId}
-              middleChapter={middleChapter}
-              allMiddleChapters={allMiddleChapters}
-              structuredData={structuredData}
-              selectedChipIds={selectedChipIds}
-              onToggleMiddleChapter={toggleMiddleChapter}
-              onToggleLittleChapter={toggleLittleChapter}
-              onToggleDifficultyGroup={toggleDifficultyGroup}
-              onToggleChip={toggleChip}
-            />
-          ))}
-        </ScrollRoot>
+        !isFetching && (
+          <ScrollRoot css={achievementScrollRootStyle}>
+            <Accordion.Root
+              type="multiple"
+              css={accordionRootStyle}
+              defaultValue={allMiddleChapters.map(
+                (mc) => `middle-${mc.middleChapterId}`,
+              )}
+            >
+              {allMiddleChapters.map((middleChapter) => (
+                <MiddleChapterAccordion
+                  key={middleChapter.middleChapterId}
+                  accordionKey={`middle-${middleChapter.middleChapterId}`}
+                  allMiddleChapters={allMiddleChapters}
+                  middleChapter={middleChapter}
+                  structuredData={structuredData}
+                  selectedChipIds={selectedChipIds}
+                  onToggleMiddleChapter={toggleMiddleChapter}
+                  onToggleLittleChapter={toggleLittleChapter}
+                  onToggleDifficultyGroup={toggleDifficultyGroup}
+                  onToggleChip={toggleChip}
+                />
+              ))}
+            </Accordion.Root>
+          </ScrollRoot>
+        )
       )}
     </div>
   );

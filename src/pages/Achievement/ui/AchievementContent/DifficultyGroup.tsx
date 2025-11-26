@@ -38,10 +38,7 @@ export const DifficultyGroup = ({
   );
 
   return (
-    <article
-      className={clsx('content-item difficulty-group', emptyClassName)}
-      key={`difficulty-${littleChapterId}-${difficulty}`}
-    >
+    <article className={clsx('content-item difficulty-group', emptyClassName)}>
       {chips.length > 0 && (
         <Checkbox
           id={`difficulty-${littleChapterId}-${difficulty}`}
