@@ -2,6 +2,7 @@ import { css } from '@emotion/react';
 import { color } from '@/shared/styles/color';
 
 export const checkboxRootStyle = css`
+  flex-shrink: 0;
   background-color: ${color.white};
   width: 20px;
   height: 20px;

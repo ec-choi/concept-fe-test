@@ -40,7 +40,9 @@ export const chipStyle = ({ grade }: { grade: ACHIEVEMENT_GRADE }) => css`
 
   .chip-overlay {
     content: '';
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     position: absolute;
     z-index: 10;
     top: 0;
