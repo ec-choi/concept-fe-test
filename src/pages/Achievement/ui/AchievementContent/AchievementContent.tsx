@@ -206,6 +206,7 @@ export const AchievementContent = () => {
                                   littleChapter.difficulties[
                                     difficulty as DIFFICULTY_TYPE
                                   ];
+
                                 const difficultyGroupCheckState =
                                   getDifficultyGroupCheckState(
                                     chips,
@@ -239,11 +240,7 @@ export const AchievementContent = () => {
                                             : difficultyGroupCheckState.checked
                                         }
                                         onCheckedChange={() => {
-                                          toggleDifficultyGroup(
-                                            littleChapter.littleChapterId,
-                                            difficulty as DIFFICULTY_TYPE,
-                                            chips,
-                                          );
+                                          toggleDifficultyGroup(chips);
                                         }}
                                       />
                                     )}

@@ -3,10 +3,7 @@ import type {
   LittleChapter,
   MiddleChapter,
 } from '@/pages/Achievement/hooks/useStudentAchievement';
-import type {
-  DIFFICULTY_TYPE,
-  TypeChip,
-} from '@/entities/typeChip/model/types';
+import type { TypeChip } from '@/entities/typeChip/model/types';
 import { create } from 'zustand';
 import {
   getDifficultyGroupCheckState,
@@ -21,11 +18,7 @@ type ContentStoreType = {
 type ContentStoreActionType = {
   toggleChip: (chipId: TypeChip['conceptChipId']) => void;
   // 난도 선택 체크
-  toggleDifficultyGroup: (
-    littleChapterId: LittleChapter['littleChapterId'],
-    difficulty: DIFFICULTY_TYPE,
-    chips: ChipWithAchievement[],
-  ) => void;
+  toggleDifficultyGroup: (chips: ChipWithAchievement[]) => void;
   // 소단원 선택 체크
   toggleLittleChapter: (littleChapter: LittleChapter) => void;
   // 중단원 선택 체크
@@ -37,13 +30,33 @@ type ContentStoreActionType = {
       ? T
       : never,
   ) => void;
-  // 필터링된 칩 ID 목록 추출
-  getFilteredSelectedChips: (
-    filteredChipIds: TypeChip['conceptChipId'][],
-  ) => Set<TypeChip['conceptChipId']>;
+
   // 필터링된 칩 ID 목록과 동기화
   syncWithFilteredChips: (filteredChipIds: TypeChip['conceptChipId'][]) => void;
   resetSelection: () => void;
+};
+
+// 공통 토글 로직(스토어에서만 쓰임)
+const toggleChipsByCheckState = (
+  currentSelectedChipIds: Set<number>,
+  chips: ChipWithAchievement[],
+  checkState: { checked: boolean; indeterminate: boolean },
+): Set<number> => {
+  const newSelectedChipIds = new Set(currentSelectedChipIds);
+
+  // 파트체크(indeterminate) 또는 체크 안됨 상태면 모두 선택
+  if (checkState.indeterminate || !checkState.checked) {
+    chips.forEach((chip) => {
+      newSelectedChipIds.add(chip.conceptChipId);
+    });
+  } else {
+    // 모두 체크된 상태면 모두 해제
+    chips.forEach((chip) => {
+      newSelectedChipIds.delete(chip.conceptChipId);
+    });
+  }
+
+  return newSelectedChipIds;
 };
 
 export const createContentStore = () =>
@@ -62,37 +75,23 @@ export const createContentStore = () =>
       });
     },
 
-    toggleDifficultyGroup: (
-      _littleChapterId: number,
-      _difficulty: DIFFICULTY_TYPE,
-      chips: ChipWithAchievement[],
-    ) => {
+    toggleDifficultyGroup: (chips: ChipWithAchievement[]) => {
       set((state) => {
-        const newSelectedChipIds = new Set(state.selectedChipIds);
         const checkState = getDifficultyGroupCheckState(
           chips,
           state.selectedChipIds,
         );
-
-        // 파트체크(indeterminate) 또는 체크 안됨 상태면 모두 선택
-        if (checkState.indeterminate || !checkState.checked) {
-          chips.forEach((chip) => {
-            newSelectedChipIds.add(chip.conceptChipId);
-          });
-        } else {
-          // 모두 체크된 상태면 모두 해제
-          chips.forEach((chip) => {
-            newSelectedChipIds.delete(chip.conceptChipId);
-          });
-        }
-
+        const newSelectedChipIds = toggleChipsByCheckState(
+          state.selectedChipIds,
+          chips,
+          checkState,
+        );
         return { selectedChipIds: newSelectedChipIds };
       });
     },
 
     toggleLittleChapter: (littleChapter: LittleChapter) => {
       set((state) => {
-        const newSelectedChipIds = new Set(state.selectedChipIds);
         const allChips: ChipWithAchievement[] = [];
         Object.values(littleChapter.difficulties).forEach((chips) => {
           allChips.push(...chips);
@@ -102,19 +101,11 @@ export const createContentStore = () =>
           littleChapter,
           state.selectedChipIds,
         );
-
-        // 파트체크(indeterminate) 또는 체크 안됨 상태면 모두 선택
-        if (checkState.indeterminate || !checkState.checked) {
-          allChips.forEach((chip) => {
-            newSelectedChipIds.add(chip.conceptChipId);
-          });
-        } else {
-          // 모두 체크된 상태면 모두 해제
-          allChips.forEach((chip) => {
-            newSelectedChipIds.delete(chip.conceptChipId);
-          });
-        }
-
+        const newSelectedChipIds = toggleChipsByCheckState(
+          state.selectedChipIds,
+          allChips,
+          checkState,
+        );
         return { selectedChipIds: newSelectedChipIds };
       });
     },
@@ -128,7 +119,6 @@ export const createContentStore = () =>
         : never,
     ) => {
       set((state) => {
-        const newSelectedChipIds = new Set(state.selectedChipIds);
         const allChips: ChipWithAchievement[] = [];
         middleChapter.littleChapters.forEach((littleChapter) => {
           Object.values(littleChapter.difficulties).forEach((chips) => {
@@ -140,35 +130,13 @@ export const createContentStore = () =>
           middleChapter,
           state.selectedChipIds,
         );
-
-        // 파트체크(indeterminate) 또는 체크 안됨 상태면 모두 선택
-        if (checkState.indeterminate || !checkState.checked) {
-          allChips.forEach((chip) => {
-            newSelectedChipIds.add(chip.conceptChipId);
-          });
-        } else {
-          // 모두 체크된 상태면 모두 해제
-          allChips.forEach((chip) => {
-            newSelectedChipIds.delete(chip.conceptChipId);
-          });
-        }
-
+        const newSelectedChipIds = toggleChipsByCheckState(
+          state.selectedChipIds,
+          allChips,
+          checkState,
+        );
         return { selectedChipIds: newSelectedChipIds };
       });
-    },
-
-    getFilteredSelectedChips: (filteredChipIds: number[]) => {
-      const state = get();
-      const filteredSet = new Set(filteredChipIds);
-      const result = new Set<number>();
-
-      state.selectedChipIds.forEach((chipId) => {
-        if (filteredSet.has(chipId)) {
-          result.add(chipId);
-        }
-      });
-
-      return result;
     },
 
     syncWithFilteredChips: (filteredChipIds: number[]) => {
