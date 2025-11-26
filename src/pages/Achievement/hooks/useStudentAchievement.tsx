@@ -89,13 +89,18 @@ export const useStudentAchievement = ({
 
   const structuredData = useMemo(() => {
     const result: {
-      isEmpty: boolean; // 필터링이 적용된 데이터가 비어있는지 여부
+      isAllEmpty: boolean; // 필터링 적용 후 비어있는지 여부
       isBasicColEmpty: boolean; // 총 개수 중 기본 난이도 칼럼이 비어있는지 여부
       isIntermediateColEmpty: boolean; // 총 개수 중 중간 난이도 칼럼이 비어있는지 여부
       isAdvancedColEmpty: boolean; // 총 개수 중 고급 난이도 칼럼이 비어있는지 여부
       content: MiddleChapter; // 중단원 데이터
-      achievementCounts: Record<ACHIEVEMENT_GRADE, number>; // 성취도별 개수(필터링 적용x)
+      achievementCounts: Record<ACHIEVEMENT_GRADE, number>; // 성취도별 개수(필터링 적용)
     } = {
+      isAllEmpty: true,
+      isBasicColEmpty: true,
+      isIntermediateColEmpty: true,
+      isAdvancedColEmpty: true,
+      content: new Map(),
       achievementCounts: {
         WHITE: 0,
         GRAY: 0,
@@ -105,68 +110,60 @@ export const useStudentAchievement = ({
         GREEN: 0,
         SMILE: 0,
       },
-      isEmpty: true,
-      isBasicColEmpty: true,
-      isIntermediateColEmpty: true,
-      isAdvancedColEmpty: true,
-      content: new Map(),
     };
     if (
       !chips ||
       !filteredStudentAchievementChips ||
-      !originStudentAchievementChips
+      originStudentAchievementChips.length === 0
     )
       return result;
-    originStudentAchievementChips.forEach((originAchievementChip) => {
-      // 1. 오리진 학생 성취도 칩과 유형칩 매칭( 1:1 매칭으로 학생 성취도칩과 유형칩 갯수가 항상 같음)
-      const typeChip = chips.find(
-        (chip) => chip.id === originAchievementChip.typeChipId,
+    originStudentAchievementChips.forEach((studentAchievementChip) => {
+      // 1. 성취도과 칩정보를 매칭하기 위해 칩 찾기(학생성취도와 유형칩은 항상 1:1 매칭으로 갯수가 같음)
+      const chip = chips?.find(
+        (chip) => chip.id === studentAchievementChip.typeChipId,
       );
 
-      if (!typeChip) return;
-
+      if (!chip) return;
+      // 2. achievementCounts 계산
       if (isRecommendOnly) {
-        // 2. 오리진 학생 성취도 칩의 갯수 계산(추천 유형 필터에 영향을 받음)
-        if (typeChip.recommended) {
-          result.achievementCounts[originAchievementChip.achievement]++;
+        if (chip.recommended) {
+          result.achievementCounts[studentAchievementChip.achievement]++;
         }
       } else {
-        result.achievementCounts[originAchievementChip.achievement]++;
+        result.achievementCounts[studentAchievementChip.achievement]++;
       }
-
-      // 3. 이하 처리는 필터링 적용한 학생 성취도 칩과 유형칩 매칭
+      // 3. 이하 필털이 된 유형칩 계산
       const filteredStudentAchievementChip =
         filteredStudentAchievementChips.find((achievement) => {
-          return achievement.typeChipId === typeChip.id;
+          return achievement.typeChipId === chip.id;
         });
-
       let _chip: ChipWithAchievement | undefined;
-      if (filteredStudentAchievementChip?.typeChipId === typeChip.id) {
+      if (filteredStudentAchievementChip?.typeChipId === chip.id) {
         _chip = {
+          ...chip,
           ...filteredStudentAchievementChip,
-          ...typeChip,
         };
       }
 
-      const middleChapter = result.content.get(typeChip.middleChapterId);
+      const middleChapter = result.content.get(chip.middleChapterId);
 
       if (!middleChapter) {
-        result.content.set(typeChip.middleChapterId, {
-          middleChapterId: typeChip.middleChapterId,
-          middleChapterName: typeChip.middleChapterName,
+        result.content.set(chip.middleChapterId, {
+          middleChapterId: chip.middleChapterId,
+          middleChapterName: chip.middleChapterName,
           littleChapters: new Map(),
         });
       }
 
       let littleChapter = middleChapter?.littleChapters.get(
-        typeChip.littleChapterId,
+        chip.littleChapterId,
       );
 
       if (!littleChapter) {
         const newLittleChapter = {
-          littleChapterId: typeChip.littleChapterId,
-          littleChapterName: typeChip.littleChapterName,
-          middleChapterId: typeChip.middleChapterId,
+          littleChapterId: chip.littleChapterId,
+          littleChapterName: chip.littleChapterName,
+          middleChapterId: chip.middleChapterId,
           isEmpty: true,
           difficulties: {
             basic: [],
@@ -175,31 +172,31 @@ export const useStudentAchievement = ({
           },
         };
         result.content
-          .get(typeChip.middleChapterId)
-          ?.littleChapters.set(typeChip.littleChapterId, newLittleChapter);
+          .get(chip.middleChapterId)
+          ?.littleChapters.set(chip.littleChapterId, newLittleChapter);
         littleChapter = newLittleChapter;
       }
 
       if (littleChapter && _chip) {
+        result.isAllEmpty = false;
         littleChapter.isEmpty = false;
-        littleChapter.difficulties[typeChip.difficulty].push(_chip);
-        if (typeChip.difficulty === 'basic') {
+        littleChapter.difficulties[chip.difficulty].push(_chip);
+        if (chip.difficulty === 'basic') {
           result.isBasicColEmpty = false;
-        } else if (typeChip.difficulty === 'intermediate') {
+        } else if (chip.difficulty === 'intermediate') {
           result.isIntermediateColEmpty = false;
-        } else if (typeChip.difficulty === 'advanced') {
+        } else if (chip.difficulty === 'advanced') {
           result.isAdvancedColEmpty = false;
         }
-        result.isEmpty = false;
       }
     });
 
     return result;
   }, [
-    isRecommendOnly,
     chips,
     filteredStudentAchievementChips,
     originStudentAchievementChips,
+    isRecommendOnly,
   ]);
 
   return {

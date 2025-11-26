@@ -74,7 +74,7 @@ export const AchievementContent = () => {
   useEffect(() => {
     syncWithFilteredChips(filteredChipIds);
   }, [filteredChipIds, syncWithFilteredChips]);
-  const isEmpty = !isFetching && structuredData.isEmpty;
+  const isEmpty = !isFetching && structuredData.isAllEmpty;
 
   return (
     <div css={achievementContentStyle}>
