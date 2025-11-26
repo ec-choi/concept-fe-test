@@ -145,14 +145,6 @@ export const useStudentAchievement = ({
       const filteredStudentAchievementChip =
         filteredStudentAchievementChipMap.get(chip.id);
 
-      let _chip: ChipWithAchievement | undefined;
-      if (filteredStudentAchievementChip?.typeChipId === chip.id) {
-        _chip = {
-          ...chip,
-          ...filteredStudentAchievementChip,
-        };
-      }
-
       const middleChapter = result.content.get(chip.middleChapterId);
 
       if (!middleChapter) {
@@ -183,6 +175,14 @@ export const useStudentAchievement = ({
           .get(chip.middleChapterId)
           ?.littleChapters.set(chip.littleChapterId, newLittleChapter);
         littleChapter = newLittleChapter;
+      }
+
+      let _chip: ChipWithAchievement | undefined;
+      if (filteredStudentAchievementChip?.typeChipId === chip.id) {
+        _chip = {
+          ...chip,
+          ...filteredStudentAchievementChip,
+        };
       }
 
       if (littleChapter && _chip) {
