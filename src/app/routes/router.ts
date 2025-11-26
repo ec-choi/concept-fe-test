@@ -1,17 +1,18 @@
 import { AchievementPage } from '@/pages/Achievement/Achievement.page';
+import { Layout } from '@/widgets/Layout/Layout';
 import { createBrowserRouter } from 'react-router';
 
 export const ROOT = '/';
-export const ROOT_WITH_STUDENT_ID = `${ROOT}/:studentId`;
+export const ACHIEVEMENT = `:studentId`;
 
 export const router = createBrowserRouter([
   {
     path: ROOT,
-    Component: AchievementPage,
-    loader: AchievementPage.loader,
+    Component: Layout,
+    loader: Layout.loader,
     children: [
       {
-        path: ROOT_WITH_STUDENT_ID,
+        path: ACHIEVEMENT,
         Component: AchievementPage,
         loader: AchievementPage.loader,
       },
