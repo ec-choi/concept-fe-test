@@ -1,22 +1,17 @@
-import ky from 'ky';
+import axios from 'axios';
 
-export const http = ky.create({
-  prefixUrl: 'https://frontend-assignment-api.vercel.app/api',
+export const http = axios.create({
+  baseURL: 'https://frontend-assignment-api.vercel.app/api',
   timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
   },
-  hooks: {
-    beforeRequest: [() => {}],
-    afterResponse: [
-      async (_request, _options, response) => {
-        if (!response.ok) {
-          // 공통 에러 처리 로직??
-          // if (response.status === 401) { ... }
-        }
-        // console.log(await response.clone().json());
-        return response;
-      },
-    ],
-  },
+});
+
+http.interceptors.request.use((config) => {
+  return config;
+});
+
+http.interceptors.response.use((response) => {
+  return response;
 });

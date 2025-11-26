@@ -4,10 +4,10 @@ import type { Student } from '@/entities/student/model/types';
 import { http } from '@/shared/lib/http';
 
 export const achievementApi = {
-  getAchievements: async (searchParams: {
+  getAchievements: async (params: {
     studentId: Student['id'];
     gradeKey: Grade['key'];
   }) => {
-    return await http.get<Achievement[]>('/achievements', { searchParams });
+    return await http.get<Achievement[]>('/achievement', { params });
   },
 };

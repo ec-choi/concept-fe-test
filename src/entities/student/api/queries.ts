@@ -1,11 +1,11 @@
 import { studentApi } from '@/entities/student/api';
 import { queryOptions } from '@tanstack/react-query';
 
-export const sudentQueries = {
+export const studentQueries = {
   root: () => ['/students'],
   student: () =>
     queryOptions({
-      queryKey: sudentQueries.root(),
+      queryKey: studentQueries.root(),
       queryFn: () => studentApi.getStudents(),
     }),
 };

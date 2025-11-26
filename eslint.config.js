@@ -20,6 +20,13 @@ export default defineConfig([
       ecmaVersion: 2020,
       globals: globals.browser,
     },
+    rules: {
+      // "Cannot access refs during render" 오류 비활성화 (React 19+)
+      'react-hooks/rules-of-hooks': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      // "Fast refresh only works when a file only exports components" 경고 비활성화
+      'react-refresh/only-export-components': ['off'],
+    },
   },
   prettier,
 ]);

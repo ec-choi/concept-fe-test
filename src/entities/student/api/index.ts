@@ -3,6 +3,6 @@ import { http } from '@/shared/lib/http';
 
 export const studentApi = {
   getStudents: async () => {
-    return (await http.get<Student[]>('students')).json();
+    return await http.get<Student[]>('students');
   },
 };

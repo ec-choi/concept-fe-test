@@ -3,9 +3,9 @@ import { queryOptions } from '@tanstack/react-query';
 
 export const typeChipQueries = {
   root: () => ['/typeChips'],
-  typeChip: (searchParams: Parameters<typeof typeChipApi.getTypes>[0]) =>
+  typeChip: (params: Parameters<typeof typeChipApi.getTypes>[0]) =>
     queryOptions({
-      queryKey: typeChipQueries.root(),
-      queryFn: () => typeChipApi.getTypes(searchParams),
+      queryKey: [...typeChipQueries.root(), params.gradeKey],
+      queryFn: () => typeChipApi.getTypes(params),
     }),
 };
