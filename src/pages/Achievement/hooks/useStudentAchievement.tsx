@@ -63,7 +63,6 @@ export const useStudentAchievement = ({
           gradeKey: gradeKey || '',
         }),
         enabled: !!studentId && !!gradeKey,
-        // initialData: () => prevData.current,
       },
     ],
   });
@@ -209,7 +208,6 @@ export const useStudentAchievement = ({
   ]);
 
   return {
-    studentAchievement,
     structuredData,
     isFetching: isTypeChipsFetching || isStudentAchievementFetching,
   };
