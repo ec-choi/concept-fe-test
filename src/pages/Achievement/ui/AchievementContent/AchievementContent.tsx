@@ -54,20 +54,10 @@ export const AchievementContent = () => {
     (state) => state.syncWithFilteredChips,
   );
 
-  // 현재 필터링된 칩 ID 목록 추출
-  const filteredChipIds = useMemo(() => {
-    const chipIds: number[] = [];
-    structuredData.content.forEach((middleChapter) => {
-      middleChapter.littleChapters.forEach((littleChapter) => {
-        Object.values(littleChapter.difficulties).forEach((chips) => {
-          chips.forEach((chip) => {
-            chipIds.push(chip.conceptChipId);
-          });
-        });
-      });
-    });
-    return chipIds;
-  }, [structuredData]);
+  const filteredChipIds = useMemo(
+    () => Array.from(structuredData.filteredChipMap.keys()),
+    [structuredData.filteredChipMap],
+  );
 
   // 필터가 변경되면 선택된 칩을 필터링된 칩과 동기화
   useEffect(() => {

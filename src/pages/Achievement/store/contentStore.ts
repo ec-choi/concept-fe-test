@@ -1,8 +1,8 @@
 import type {
   ChipWithAchievement,
   LittleChapter,
-  MiddleChapter,
-} from '@/pages/Achievement/hooks/useStudentAchievement';
+  MiddleChapterValue,
+} from '@/pages/Achievement/model/types';
 import type { TypeChip } from '@/entities/typeChip/model/types';
 import { create } from 'zustand';
 import {
@@ -22,14 +22,7 @@ type ContentStoreActionType = {
   // 소단원 선택 체크
   toggleLittleChapter: (littleChapter: LittleChapter) => void;
   // 중단원 선택 체크
-  toggleMiddleChapter: (
-    middleChapter: MiddleChapter extends Map<
-      TypeChip['middleChapterId'],
-      infer T
-    >
-      ? T
-      : never,
-  ) => void;
+  toggleMiddleChapter: (middleChapter: MiddleChapterValue) => void;
 
   // 필터링된 칩 ID 목록과 동기화
   syncWithFilteredChips: (filteredChipIds: TypeChip['conceptChipId'][]) => void;
@@ -60,7 +53,7 @@ const toggleChipsByCheckState = (
 };
 
 export const createContentStore = () =>
-  create<ContentStoreType & ContentStoreActionType>((set, get) => ({
+  create<ContentStoreType & ContentStoreActionType>((set) => ({
     selectedChipIds: new Set<number>(),
 
     toggleChip: (chipId: number) => {
@@ -110,14 +103,7 @@ export const createContentStore = () =>
       });
     },
 
-    toggleMiddleChapter: (
-      middleChapter: MiddleChapter extends Map<
-        TypeChip['middleChapterId'],
-        infer T
-      >
-        ? T
-        : never,
-    ) => {
+    toggleMiddleChapter: (middleChapter: MiddleChapterValue) => {
       set((state) => {
         const allChips: ChipWithAchievement[] = [];
         middleChapter.littleChapters.forEach((littleChapter) => {

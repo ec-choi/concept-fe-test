@@ -4,39 +4,16 @@ import type {
   ACHIEVEMENT_GRADE,
 } from '@/entities/achievement/model/types';
 import type { Student } from '@/entities/student/model/types';
-import type {
-  DIFFICULTY_TYPE,
-  TypeChip,
-} from '@/entities/typeChip/model/types';
+import type { TypeChip } from '@/entities/typeChip/model/types';
 import { typeChipQueries } from '@/entities/typeChip/api/queries';
 import { useFilterStore } from '@/pages/Achievement/store/context';
 import { cachedQueryOptions } from '@/shared/lib/queryClient';
 import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
-
-export type MiddleChapter = Map<
-  TypeChip['middleChapterId'],
-  {
-    middleChapterId: TypeChip['middleChapterId'];
-    middleChapterName: TypeChip['middleChapterName'];
-    littleChapters: Map<TypeChip['littleChapterId'], LittleChapter>;
-  }
->;
-
-export type LittleChapter = {
-  littleChapterId: number;
-  littleChapterName: string;
-  middleChapterId: number;
-  difficulties: DifficultyGroup;
-  isEmpty: boolean;
-};
-
-export type DifficultyGroup = Record<DIFFICULTY_TYPE, ChipWithAchievement[]>;
-
-export type ChipWithAchievement = TypeChip & {
-  littleChapterId: LittleChapter['littleChapterId'];
-  achievement: ACHIEVEMENT_GRADE;
-};
+import type {
+  ChipWithAchievement,
+  MiddleChapter,
+} from '@/pages/Achievement/model/types';
 
 export const useStudentAchievement = ({
   studentId,
@@ -106,6 +83,8 @@ export const useStudentAchievement = ({
       isAdvancedColEmpty: boolean; // 총 개수 중 고급 난이도 칼럼이 비어있는지 여부(모든 필터링 적용)
       content: MiddleChapter; // 중단원 데이터(모든 필터링 적용)
       achievementCounts: Record<ACHIEVEMENT_GRADE, number>; // 성취도별 개수(난이도 필터링만 적용)
+      // 평탄화 (성능용..?)
+      filteredChipMap: Map<TypeChip['conceptChipId'], ChipWithAchievement>;
     } = {
       isAllEmpty: true,
       isBasicColEmpty: true,
@@ -121,6 +100,7 @@ export const useStudentAchievement = ({
         GREEN: 0,
         SMILE: 0,
       },
+      filteredChipMap: new Map(),
     };
     if (
       !chipMap ||
@@ -187,8 +167,12 @@ export const useStudentAchievement = ({
 
       if (littleChapter && _chip) {
         result.isAllEmpty = false;
+
+        result.filteredChipMap.set(_chip.conceptChipId, _chip);
+
         littleChapter.isEmpty = false;
         littleChapter.difficulties[chip.difficulty].push(_chip);
+
         if (chip.difficulty === 'basic') {
           result.isBasicColEmpty = false;
         } else if (chip.difficulty === 'intermediate') {

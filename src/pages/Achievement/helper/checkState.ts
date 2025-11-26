@@ -1,7 +1,9 @@
 import type { TypeChip } from '@/entities/typeChip/model/types';
-import type { ChipWithAchievement } from '@/pages/Achievement/hooks/useStudentAchievement';
-import type { LittleChapter } from '@/pages/Achievement/hooks/useStudentAchievement';
-import type { MiddleChapter } from '@/pages/Achievement/hooks/useStudentAchievement';
+import type {
+  ChipWithAchievement,
+  LittleChapter,
+  MiddleChapterValue,
+} from '@/pages/Achievement/model/types';
 
 const getCheckStateFromChips = (
   chips: ChipWithAchievement[],
@@ -58,9 +60,7 @@ export const getLittleChapterCheckState = (
 };
 
 export const getMiddleChapterCheckState = (
-  middleChapter: MiddleChapter extends Map<TypeChip['middleChapterId'], infer T>
-    ? T
-    : never,
+  middleChapter: MiddleChapterValue,
   selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
   const allChips = Array.from(middleChapter.littleChapters.values()).flatMap(
