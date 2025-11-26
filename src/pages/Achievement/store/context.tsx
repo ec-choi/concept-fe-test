@@ -1,7 +1,7 @@
 // import { createContentStore } from '@/pages/Achievement/store/contentStore';
 import { createFilterStore } from '@/pages/Achievement/store/filterStore';
 import type { ReactNode } from 'react';
-import { createContext, useContext, useRef } from 'react';
+import { createContext, useContext, useMemo } from 'react';
 import type { ExtractState } from 'zustand';
 import { useStore } from 'zustand';
 
@@ -19,14 +19,15 @@ export const AchievementProvider = ({
   initialGradeKey: Parameters<typeof createFilterStore>[0]['initialGradeKey'];
   children: ReactNode;
 }) => {
-  console.log('>>>>>>', initialGradeKey);
-  const _filterStore = useRef(createFilterStore({ initialGradeKey }));
-  // const _contentStore = useRef(createContentStore());
+  const _filterStore = useMemo(
+    () => createFilterStore({ initialGradeKey }),
+    [initialGradeKey],
+  );
+
   return (
     <AchievementContext
       value={{
-        filterStore: _filterStore.current,
-        // contentStore: _contentStore.current,
+        filterStore: _filterStore,
       }}
     >
       {children}

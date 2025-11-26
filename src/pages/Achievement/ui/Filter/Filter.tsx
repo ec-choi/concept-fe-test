@@ -5,14 +5,51 @@ import type { Grade } from '@/entities/grade/model/types';
 import { ACHIEVEMENT_GRADES } from '@/entities/achievement/model/constant';
 import { Chip } from '@/pages/Achievement/ui/Chip/Chip';
 import { useFilterStore } from '@/pages/Achievement/store/context';
+import { useLoaderData } from 'react-router';
+import type { AchievementPage } from '@/pages/Achievement/Achievement.page';
+import { useStudentAchievement } from '@/pages/Achievement/hooks/useStudentAchievement';
+import { useMemo } from 'react';
+import type { ACHIEVEMENT_GRADE } from '@/entities/achievement/model/types';
 
 export const Filter = ({ grades }: { grades: Grade[] }) => {
+  const { studentId } = useLoaderData<typeof AchievementPage.loader>();
+
   const gradeKey = useFilterStore((state) => state.gradeKey);
   const isRecommendOnly = useFilterStore((state) => state.isRecommendOnly);
   const achievementGrades = useFilterStore((state) => state.achievementGrades);
   const setFilter = useFilterStore((state) => state.setFilter);
+  const resetFilter = useFilterStore((state) => state.resetFilter);
 
-  console.log(achievementGrades);
+  const { chips, studentAchievement } = useStudentAchievement({
+    studentId,
+  });
+
+  // 각 성취도 등급별 개수 계산
+  const achievementCounts = useMemo(() => {
+    if (!chips || !studentAchievement?.data) {
+      return {} as Record<ACHIEVEMENT_GRADE, number>;
+    }
+
+    const counts = ACHIEVEMENT_GRADES.reduce(
+      (acc, grade) => {
+        acc[grade] = 0;
+        return acc;
+      },
+      {} as Record<ACHIEVEMENT_GRADE, number>,
+    );
+
+    chips.forEach((chip) => {
+      const achievement = studentAchievement.data.find(
+        (ach) => ach.typeChipId === chip.id,
+      );
+      if (achievement?.achievement) {
+        counts[achievement.achievement]++;
+      }
+    });
+
+    return counts;
+  }, [chips, studentAchievement]);
+
   return (
     <div css={filterStyle}>
       <div className="filter">
@@ -35,7 +72,7 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
           />
           <span>추천 유형만 보기</span>
         </div>
-        <button css={resetButtonStyle}>
+        <button css={resetButtonStyle} onClick={resetFilter}>
           <Icon name="icon_reset" size={16} />
           초기화
         </button>
@@ -56,7 +93,7 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
                 })
               }
             />
-            <span>0개</span>
+            <span>{achievementCounts[grade] || 0}개</span>
           </div>
         ))}
       </div>

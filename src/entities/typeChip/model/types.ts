@@ -1,4 +1,4 @@
-type DIFFICULTY_TYPE = 'intermediate' | 'advanced' | 'basic';
+export type DIFFICULTY_TYPE = 'basic' | 'intermediate' | 'advanced';
 
 export type TypeChip = {
   conceptChipId: number;

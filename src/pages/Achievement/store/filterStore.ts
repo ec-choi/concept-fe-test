@@ -10,6 +10,7 @@ type FilterStoreType = {
 
 type FilterStoreActionType = {
   setFilter: (filter: Partial<FilterStoreType>) => void;
+  resetFilter: () => void;
 };
 
 export const createFilterStore = ({
@@ -27,6 +28,7 @@ export const createFilterStore = ({
     return {
       ...INITIAL_VALUE,
       setFilter: (filter) => set((state) => ({ ...state, ...filter })),
+      resetFilter: () => set((state) => ({ ...state, ...INITIAL_VALUE })),
     };
   });
 };
