@@ -163,13 +163,10 @@ export const AchievementContent = () => {
                             littleChapter,
                             selectedChipIds,
                           );
-
+                        if (littleChapter.isEmpty) return null;
                         return (
                           <section
                             css={littleChapterSectionStyle}
-                            style={
-                              littleChapter.isEmpty ? { display: 'none' } : {}
-                            }
                             key={littleChapter.littleChapterId}
                           >
                             <h3 className="first-column content-item little-chapter">
