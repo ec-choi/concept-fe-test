@@ -35,6 +35,7 @@ export const Chip = ({
             <Icon name="icon_star" size={12} />
           </span>
         )}
+        {checked && <span className="chip-overlay" />}
       </label>
     </div>
   );

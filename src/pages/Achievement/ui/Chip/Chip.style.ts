@@ -13,8 +13,14 @@ const COLORS: Record<ACHIEVEMENT_GRADE, keyof typeof color> = {
 };
 
 export const chipStyle = ({ grade }: { grade: ACHIEVEMENT_GRADE }) => css`
+  position: relative;
   input {
-    display: none;
+    opacity: 0;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
   }
   .chip-label {
     position: relative;
@@ -31,15 +37,19 @@ export const chipStyle = ({ grade }: { grade: ACHIEVEMENT_GRADE }) => css`
 
     cursor: pointer;
   }
-  input:checked + .chip-label:after {
-    position: absolute;
+
+  .chip-overlay {
     content: '';
-    z-index: 1;
+    display: block;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
-
     border-radius: 7px;
     background: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
   }
 `;
 
