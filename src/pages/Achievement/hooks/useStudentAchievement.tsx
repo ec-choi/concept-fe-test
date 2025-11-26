@@ -15,11 +15,11 @@ import { useQueries } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
 export type MiddleChapter = Map<
-  number,
+  TypeChip['middleChapterId'],
   {
-    middleChapterId: number;
-    middleChapterName: string;
-    littleChapters: Map<number, LittleChapter>;
+    middleChapterId: TypeChip['middleChapterId'];
+    middleChapterName: TypeChip['middleChapterName'];
+    littleChapters: Map<TypeChip['littleChapterId'], LittleChapter>;
   }
 >;
 

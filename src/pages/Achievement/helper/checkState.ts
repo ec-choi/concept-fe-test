@@ -5,7 +5,7 @@ import type { MiddleChapter } from '@/pages/Achievement/hooks/useStudentAchievem
 
 const getCheckStateFromChips = (
   chips: ChipWithAchievement[],
-  selectedChipIds: Set<number>,
+  selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
   const totalCount = chips.length;
   if (totalCount === 0) {
@@ -51,15 +51,17 @@ export const getDifficultyGroupCheckState = (
 
 export const getLittleChapterCheckState = (
   littleChapter: LittleChapter,
-  selectedChipIds: Set<number>,
+  selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
   const allChips = Object.values(littleChapter.difficulties).flat();
   return getCheckStateFromChips(allChips, selectedChipIds);
 };
 
 export const getMiddleChapterCheckState = (
-  middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
-  selectedChipIds: Set<number>,
+  middleChapter: MiddleChapter extends Map<TypeChip['middleChapterId'], infer T>
+    ? T
+    : never,
+  selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
   const allChips = Array.from(middleChapter.littleChapters.values()).flatMap(
     (littleChapter) => Object.values(littleChapter.difficulties).flat(),

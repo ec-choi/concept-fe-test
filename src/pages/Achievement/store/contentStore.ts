@@ -30,7 +30,12 @@ type ContentStoreActionType = {
   toggleLittleChapter: (littleChapter: LittleChapter) => void;
   // 중단원 선택 체크
   toggleMiddleChapter: (
-    middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
+    middleChapter: MiddleChapter extends Map<
+      TypeChip['middleChapterId'],
+      infer T
+    >
+      ? T
+      : never,
   ) => void;
   // 필터링된 칩 ID 목록 추출
   getFilteredSelectedChips: (
@@ -115,7 +120,12 @@ export const createContentStore = () =>
     },
 
     toggleMiddleChapter: (
-      middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
+      middleChapter: MiddleChapter extends Map<
+        TypeChip['middleChapterId'],
+        infer T
+      >
+        ? T
+        : never,
     ) => {
       set((state) => {
         const newSelectedChipIds = new Set(state.selectedChipIds);
