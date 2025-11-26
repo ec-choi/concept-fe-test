@@ -26,7 +26,6 @@ import {
   useFilterStore,
 } from '@/pages/Achievement/store/context';
 import {
-  getChipCheckState,
   getDifficultyGroupCheckState,
   getLittleChapterCheckState,
   getMiddleChapterCheckState,
@@ -251,17 +250,13 @@ export const AchievementContent = () => {
 
                                     <div className="chip-container">
                                       {chips.map((chip) => {
-                                        const chipCheckState =
-                                          getChipCheckState(
-                                            chip.conceptChipId,
-                                            selectedChipIds,
-                                          );
-
                                         return (
                                           <Chip
                                             key={chip.conceptChipId}
                                             id={`concept-chip-${chip.conceptChipId}`}
-                                            checked={chipCheckState.checked}
+                                            checked={selectedChipIds.has(
+                                              chip.conceptChipId,
+                                            )}
                                             onChecked={() => {
                                               toggleChip(chip.conceptChipId);
                                             }}
