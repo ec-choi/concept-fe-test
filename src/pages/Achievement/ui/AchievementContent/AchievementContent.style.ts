@@ -110,15 +110,16 @@ export const littleChapterSectionStyle = css`
   .first-column {
     max-width: 300px;
   }
-  .little-chapter {
-    padding: 44px 14px;
-  }
+
   .content-item {
     flex: 1;
     display: flex;
     align-items: flex-start;
     gap: 8px;
     padding: 10px;
+    &.little-chapter {
+      padding: 14px 14px 14px 44px;
+    }
     + .content-item {
       border-left: 1px solid ${color.gray300};
     }

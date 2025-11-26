@@ -5,6 +5,11 @@ import type {
 } from '@/pages/Achievement/hooks/useStudentAchievement';
 import type { DIFFICULTY_TYPE } from '@/entities/typeChip/model/types';
 import { create } from 'zustand';
+import {
+  getDifficultyGroupCheckState,
+  getLittleChapterCheckState,
+  getMiddleChapterCheckState,
+} from '@/pages/Achievement/helper/checkState';
 
 type ContentStoreType = {
   selectedChipIds: Set<number>;
@@ -29,152 +34,6 @@ type ContentStoreActionType = {
   // 필터링된 칩 ID 목록과 동기화
   syncWithFilteredChips: (filteredChipIds: number[]) => void;
   resetSelection: () => void;
-};
-
-// 체크 상태 계산 유틸리티 함수들
-export const getChipCheckState = (
-  chipId: number,
-  selectedChipIds: Set<number>,
-) => {
-  return {
-    checked: selectedChipIds.has(chipId),
-    indeterminate: false,
-  };
-};
-
-export const getDifficultyGroupCheckState = (
-  chips: ChipWithAchievement[],
-  selectedChipIds: Set<number>,
-) => {
-  if (chips.length === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: 0,
-    };
-  }
-
-  const selectedCount = chips.filter((chip) =>
-    selectedChipIds.has(chip.conceptChipId),
-  ).length;
-
-  if (selectedCount === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: chips.length,
-    };
-  } else if (selectedCount === chips.length) {
-    return {
-      checked: true,
-      indeterminate: false,
-      selectedCount,
-      totalCount: chips.length,
-    };
-  } else {
-    return {
-      checked: false,
-      indeterminate: true,
-      selectedCount,
-      totalCount: chips.length,
-    };
-  }
-};
-
-export const getLittleChapterCheckState = (
-  littleChapter: LittleChapter,
-  selectedChipIds: Set<number>,
-) => {
-  const allChips: ChipWithAchievement[] = [];
-  Object.values(littleChapter.difficulties).forEach((chips) => {
-    allChips.push(...chips);
-  });
-
-  if (allChips.length === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: 0,
-    };
-  }
-
-  const selectedCount = allChips.filter((chip) =>
-    selectedChipIds.has(chip.conceptChipId),
-  ).length;
-
-  if (selectedCount === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: allChips.length,
-    };
-  } else if (selectedCount === allChips.length) {
-    return {
-      checked: true,
-      indeterminate: false,
-      selectedCount,
-      totalCount: allChips.length,
-    };
-  } else {
-    return {
-      checked: false,
-      indeterminate: true,
-      selectedCount,
-      totalCount: allChips.length,
-    };
-  }
-};
-
-export const getMiddleChapterCheckState = (
-  middleChapter: MiddleChapter extends Map<number, infer T> ? T : never,
-  selectedChipIds: Set<number>,
-) => {
-  const allChips: ChipWithAchievement[] = [];
-  middleChapter.littleChapters.forEach((littleChapter) => {
-    Object.values(littleChapter.difficulties).forEach((chips) => {
-      allChips.push(...chips);
-    });
-  });
-
-  if (allChips.length === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: 0,
-    };
-  }
-
-  const selectedCount = allChips.filter((chip) =>
-    selectedChipIds.has(chip.conceptChipId),
-  ).length;
-
-  if (selectedCount === 0) {
-    return {
-      checked: false,
-      indeterminate: false,
-      selectedCount: 0,
-      totalCount: allChips.length,
-    };
-  } else if (selectedCount === allChips.length) {
-    return {
-      checked: true,
-      indeterminate: false,
-      selectedCount,
-      totalCount: allChips.length,
-    };
-  } else {
-    return {
-      checked: false,
-      indeterminate: true,
-      selectedCount,
-      totalCount: allChips.length,
-    };
-  }
 };
 
 export const createContentStore = () =>

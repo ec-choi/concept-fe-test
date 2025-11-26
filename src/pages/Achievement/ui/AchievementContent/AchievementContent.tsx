@@ -30,8 +30,8 @@ import {
   getDifficultyGroupCheckState,
   getLittleChapterCheckState,
   getMiddleChapterCheckState,
-} from '@/pages/Achievement/store/contentStore';
-import { useEffect, useMemo } from 'react';
+} from '@/pages/Achievement/helper/checkState';
+import { useMemo, useEffect } from 'react';
 import { Checkbox } from '@/shared/ui/Checkbox/Checkbox';
 import { EmptyCase } from '@/pages/Achievement/ui/EmptyCase/EmptyCase';
 
@@ -260,7 +260,7 @@ export const AchievementContent = () => {
                                         return (
                                           <Chip
                                             key={chip.conceptChipId}
-                                            id={`conceptChipId-${chip.conceptChipId.toString()}`}
+                                            id={`concept-chip-${chip.conceptChipId}`}
                                             checked={chipCheckState.checked}
                                             onChecked={() => {
                                               toggleChip(chip.conceptChipId);
