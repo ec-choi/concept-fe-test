@@ -10,6 +10,7 @@ type FilterStoreType = {
 
 type FilterStoreActionType = {
   setFilter: (filter: Partial<FilterStoreType>) => void;
+  toggleAchievementGrade: (grade: ACHIEVEMENT_GRADE) => void;
   resetFilter: () => void;
 };
 
@@ -28,6 +29,16 @@ export const createFilterStore = ({
     return {
       ...INITIAL_VALUE,
       setFilter: (filter) => set((state) => ({ ...state, ...filter })),
+      toggleAchievementGrade: (grade) =>
+        set((state) => {
+          const isSelected = state.achievementGrades.includes(grade);
+          return {
+            ...state,
+            achievementGrades: isSelected
+              ? state.achievementGrades.filter((g) => g !== grade)
+              : [...state.achievementGrades, grade],
+          };
+        }),
       resetFilter: () => set((state) => ({ ...state, ...INITIAL_VALUE })),
     };
   });

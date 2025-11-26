@@ -29,3 +29,13 @@ export type MiddleChapter = Map<
   TypeChip['middleChapterId'],
   MiddleChapterValue
 >;
+
+export type StructuredData = {
+  isAllEmpty: boolean;
+  isBasicColEmpty: boolean;
+  isIntermediateColEmpty: boolean;
+  isAdvancedColEmpty: boolean;
+  content: MiddleChapter;
+  achievementCounts: Record<ACHIEVEMENT_GRADE, number>;
+  filteredChipMap: Map<TypeChip['conceptChipId'], ChipWithAchievement>;
+};

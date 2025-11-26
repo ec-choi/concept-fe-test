@@ -4,6 +4,10 @@ import type {
   LittleChapter,
   MiddleChapterValue,
 } from '@/pages/Achievement/model/types';
+import {
+  collectAllChipsFromLittleChapter,
+  collectAllChipsFromMiddleChapter,
+} from '@/pages/Achievement/helper/chipUtils';
 
 const getCheckStateFromChips = (
   chips: ChipWithAchievement[],
@@ -55,7 +59,7 @@ export const getLittleChapterCheckState = (
   littleChapter: LittleChapter,
   selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
-  const allChips = Object.values(littleChapter.difficulties).flat();
+  const allChips = collectAllChipsFromLittleChapter(littleChapter);
   return getCheckStateFromChips(allChips, selectedChipIds);
 };
 
@@ -63,8 +67,6 @@ export const getMiddleChapterCheckState = (
   middleChapter: MiddleChapterValue,
   selectedChipIds: Set<TypeChip['conceptChipId']>,
 ) => {
-  const allChips = Array.from(middleChapter.littleChapters.values()).flatMap(
-    (littleChapter) => Object.values(littleChapter.difficulties).flat(),
-  );
+  const allChips = collectAllChipsFromMiddleChapter(middleChapter);
   return getCheckStateFromChips(allChips, selectedChipIds);
 };

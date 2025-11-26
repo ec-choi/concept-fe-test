@@ -17,6 +17,9 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
   const isRecommendOnly = useFilterStore((state) => state.isRecommendOnly);
   const achievementGrades = useFilterStore((state) => state.achievementGrades);
   const setFilter = useFilterStore((state) => state.setFilter);
+  const toggleAchievementGrade = useFilterStore(
+    (state) => state.toggleAchievementGrade,
+  );
   const resetFilter = useFilterStore((state) => state.resetFilter);
 
   const { structuredData } = useStudentAchievement({
@@ -62,12 +65,8 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
               grade={grade}
               id={`filter-${grade}`}
               checked={achievementGrades.includes(grade)}
-              onChecked={(e) => {
-                setFilter({
-                  achievementGrades: e.target.checked
-                    ? [...achievementGrades, grade]
-                    : achievementGrades.filter((g) => g !== grade),
-                });
+              onChecked={() => {
+                toggleAchievementGrade(grade);
               }}
             />
             <span>{achievementCounts[grade] || 0}개</span>

@@ -2,37 +2,24 @@ import {
   achievementContentStyle,
   achievementScrollRootStyle,
   tableHeaderStyle,
-  accordionRootStyle,
-  accordionHeaderStyle,
-  accordionTriggerStyle,
-  accordionContentStyle,
-  littleChapterSectionStyle,
 } from '@/pages/Achievement/ui/AchievementContent/AchievementContent.style';
 import { ScrollRoot } from '@/shared/ui/Scroll/Scroll';
 import { useStudentAchievement } from '@/pages/Achievement/hooks/useStudentAchievement';
 import { useLoaderData } from 'react-router';
 import type { AchievementPage } from '@/pages/Achievement/Achievement.page';
-import * as Accordion from '@radix-ui/react-accordion';
 import {
   DIFFICULTY_TYPE_KR,
   DIFFICULTY_TYPES,
 } from '@/entities/typeChip/model/constant';
-import { Icon } from '@/shared/ui/Icon/Icon';
-import type { DIFFICULTY_TYPE } from '@/entities/typeChip/model/types';
-import { Chip } from '@/pages/Achievement/ui/Chip/Chip';
 import clsx from 'clsx';
 import {
   useContentStore,
   useFilterStore,
 } from '@/pages/Achievement/store/context';
-import {
-  getDifficultyGroupCheckState,
-  getLittleChapterCheckState,
-  getMiddleChapterCheckState,
-} from '@/pages/Achievement/helper/checkState';
 import { useMemo, useEffect } from 'react';
-import { Checkbox } from '@/shared/ui/Checkbox/Checkbox';
 import { EmptyCase } from '@/pages/Achievement/ui/EmptyCase/EmptyCase';
+import { MiddleChapterAccordion } from './MiddleChapterAccordion';
+import { getDifficultyEmptyClassName } from '@/pages/Achievement/helper/difficultyUtils';
 
 export const AchievementContent = () => {
   const { studentId } = useLoaderData<typeof AchievementPage.loader>();
@@ -62,35 +49,31 @@ export const AchievementContent = () => {
   // 필터가 변경되면 선택된 칩을 필터링된 칩과 동기화
   useEffect(() => {
     syncWithFilteredChips(filteredChipIds);
-  }, [filteredChipIds]);
+  }, [filteredChipIds, syncWithFilteredChips]);
 
   const isEmpty = !isFetching && structuredData.isAllEmpty;
+  const allMiddleChapters = Array.from(structuredData.content.values());
 
   return (
     <div css={achievementContentStyle}>
       <div css={tableHeaderStyle}>
         <div className="first-column table-header-item">단원</div>
-        {DIFFICULTY_TYPES.map((difficulty) => (
-          <div
-            key={difficulty}
-            className={clsx('table-header-item', {
-              'is-basic-empty':
-                !isEmpty &&
-                difficulty === 'basic' &&
-                structuredData.isBasicColEmpty,
-              'is-intermediate-empty':
-                !isEmpty &&
-                difficulty === 'intermediate' &&
-                structuredData.isIntermediateColEmpty,
-              'is-advanced-empty':
-                !isEmpty &&
-                difficulty === 'advanced' &&
-                structuredData.isAdvancedColEmpty,
-            })}
-          >
-            {DIFFICULTY_TYPE_KR[difficulty]}
-          </div>
-        ))}
+        {DIFFICULTY_TYPES.map((difficulty) => {
+          const emptyClassName = getDifficultyEmptyClassName(
+            difficulty,
+            structuredData,
+            isEmpty,
+          );
+
+          return (
+            <div
+              key={difficulty}
+              className={clsx('table-header-item', emptyClassName)}
+            >
+              {DIFFICULTY_TYPE_KR[difficulty]}
+            </div>
+          );
+        })}
       </div>
       {isEmpty ? (
         <EmptyCase
@@ -110,159 +93,19 @@ export const AchievementContent = () => {
         />
       ) : (
         <ScrollRoot css={achievementScrollRootStyle}>
-          {Array.from(structuredData.content.values()).map((middleChapter) => {
-            const middleChapterCheckState = getMiddleChapterCheckState(
-              middleChapter,
-              selectedChipIds,
-            );
-
-            return (
-              <Accordion.Root
-                type="multiple"
-                css={accordionRootStyle}
-                key={middleChapter.middleChapterId}
-                defaultValue={Array.from(structuredData.content.values()).map(
-                  (middleChapter) => `middle-${middleChapter.middleChapterId}`,
-                )}
-              >
-                <Accordion.Item
-                  value={`middle-${middleChapter.middleChapterId}`}
-                >
-                  <Accordion.Header css={accordionHeaderStyle}>
-                    <Accordion.Trigger css={accordionTriggerStyle} asChild>
-                      <div>
-                        <span className="accordion-trigger-icon">
-                          <Icon name="icon_arrow_down" size={24} />
-                        </span>
-                        <Checkbox
-                          checked={
-                            middleChapterCheckState.indeterminate
-                              ? 'indeterminate'
-                              : middleChapterCheckState.checked
-                          }
-                          onCheckedChange={() => {
-                            toggleMiddleChapter(middleChapter);
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                        />
-                        <label
-                          htmlFor={`middle-${middleChapter.middleChapterId}`}
-                        >
-                          {middleChapter.middleChapterName}
-                        </label>
-                      </div>
-                    </Accordion.Trigger>
-                  </Accordion.Header>
-                  <Accordion.Content css={accordionContentStyle}>
-                    {Array.from(middleChapter.littleChapters.values()).map(
-                      (littleChapter) => {
-                        const littleChapterCheckState =
-                          getLittleChapterCheckState(
-                            littleChapter,
-                            selectedChipIds,
-                          );
-                        if (littleChapter.isEmpty) return null;
-                        return (
-                          <section
-                            css={littleChapterSectionStyle}
-                            key={littleChapter.littleChapterId}
-                          >
-                            <h3 className="first-column content-item little-chapter">
-                              <Checkbox
-                                id={`little-chapter-${littleChapter.littleChapterId}`}
-                                checked={
-                                  littleChapterCheckState.indeterminate
-                                    ? 'indeterminate'
-                                    : littleChapterCheckState.checked
-                                }
-                                onCheckedChange={() => {
-                                  toggleLittleChapter(littleChapter);
-                                }}
-                              />
-                              <label
-                                htmlFor={`little-chapter-${littleChapter.littleChapterId}`}
-                              >
-                                {littleChapter.littleChapterName}
-                              </label>
-                            </h3>
-                            {Object.keys(littleChapter.difficulties).map(
-                              (difficulty) => {
-                                const chips =
-                                  littleChapter.difficulties[
-                                    difficulty as DIFFICULTY_TYPE
-                                  ];
-
-                                const difficultyGroupCheckState =
-                                  getDifficultyGroupCheckState(
-                                    chips,
-                                    selectedChipIds,
-                                  );
-
-                                return (
-                                  <article
-                                    className={clsx(
-                                      'content-item difficulty-group',
-                                      {
-                                        'is-basic-empty':
-                                          difficulty === 'basic' &&
-                                          structuredData.isBasicColEmpty,
-                                        'is-intermediate-empty':
-                                          difficulty === 'intermediate' &&
-                                          structuredData.isIntermediateColEmpty,
-                                        'is-advanced-empty':
-                                          difficulty === 'advanced' &&
-                                          structuredData.isAdvancedColEmpty,
-                                      },
-                                    )}
-                                    key={`difficulty-${littleChapter.littleChapterId}-${difficulty}`}
-                                  >
-                                    {chips.length > 0 && (
-                                      <Checkbox
-                                        id={`difficulty-${littleChapter.littleChapterId}-${difficulty}`}
-                                        checked={
-                                          difficultyGroupCheckState.indeterminate
-                                            ? 'indeterminate'
-                                            : difficultyGroupCheckState.checked
-                                        }
-                                        onCheckedChange={() => {
-                                          toggleDifficultyGroup(chips);
-                                        }}
-                                      />
-                                    )}
-
-                                    <div className="chip-container">
-                                      {chips.map((chip) => {
-                                        return (
-                                          <Chip
-                                            key={chip.conceptChipId}
-                                            id={`concept-chip-${chip.conceptChipId}`}
-                                            checked={selectedChipIds.has(
-                                              chip.conceptChipId,
-                                            )}
-                                            onChecked={() => {
-                                              toggleChip(chip.conceptChipId);
-                                            }}
-                                            isRecommended={chip.recommended}
-                                            grade={chip.achievement ?? 'WHITE'}
-                                          />
-                                        );
-                                      })}
-                                    </div>
-                                  </article>
-                                );
-                              },
-                            )}
-                          </section>
-                        );
-                      },
-                    )}
-                  </Accordion.Content>
-                </Accordion.Item>
-              </Accordion.Root>
-            );
-          })}
+          {allMiddleChapters.map((middleChapter) => (
+            <MiddleChapterAccordion
+              key={middleChapter.middleChapterId}
+              middleChapter={middleChapter}
+              allMiddleChapters={allMiddleChapters}
+              structuredData={structuredData}
+              selectedChipIds={selectedChipIds}
+              onToggleMiddleChapter={toggleMiddleChapter}
+              onToggleLittleChapter={toggleLittleChapter}
+              onToggleDifficultyGroup={toggleDifficultyGroup}
+              onToggleChip={toggleChip}
+            />
+          ))}
         </ScrollRoot>
       )}
     </div>

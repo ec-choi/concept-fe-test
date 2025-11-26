@@ -10,6 +10,10 @@ import {
   getLittleChapterCheckState,
   getMiddleChapterCheckState,
 } from '@/pages/Achievement/helper/checkState';
+import {
+  collectAllChipsFromLittleChapter,
+  collectAllChipsFromMiddleChapter,
+} from '@/pages/Achievement/helper/chipUtils';
 
 type ContentStoreType = {
   selectedChipIds: Set<TypeChip['conceptChipId']>;
@@ -85,10 +89,7 @@ export const createContentStore = () =>
 
     toggleLittleChapter: (littleChapter: LittleChapter) => {
       set((state) => {
-        const allChips: ChipWithAchievement[] = [];
-        Object.values(littleChapter.difficulties).forEach((chips) => {
-          allChips.push(...chips);
-        });
+        const allChips = collectAllChipsFromLittleChapter(littleChapter);
 
         const checkState = getLittleChapterCheckState(
           littleChapter,
@@ -105,12 +106,7 @@ export const createContentStore = () =>
 
     toggleMiddleChapter: (middleChapter: MiddleChapterValue) => {
       set((state) => {
-        const allChips: ChipWithAchievement[] = [];
-        middleChapter.littleChapters.forEach((littleChapter) => {
-          Object.values(littleChapter.difficulties).forEach((chips) => {
-            allChips.push(...chips);
-          });
-        });
+        const allChips = collectAllChipsFromMiddleChapter(middleChapter);
 
         const checkState = getMiddleChapterCheckState(
           middleChapter,
