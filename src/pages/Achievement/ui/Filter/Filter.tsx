@@ -8,8 +8,7 @@ import { useFilterStore } from '@/pages/Achievement/store/context';
 import { useLoaderData } from 'react-router';
 import type { AchievementPage } from '@/pages/Achievement/Achievement.page';
 import { useStudentAchievement } from '@/pages/Achievement/hooks/useStudentAchievement';
-import { useMemo } from 'react';
-import type { ACHIEVEMENT_GRADE } from '@/entities/achievement/model/types';
+import { Select, SelectItem } from '@/shared/ui/Select/Select';
 
 export const Filter = ({ grades }: { grades: Grade[] }) => {
   const { studentId } = useLoaderData<typeof AchievementPage.loader>();
@@ -20,54 +19,32 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
   const setFilter = useFilterStore((state) => state.setFilter);
   const resetFilter = useFilterStore((state) => state.resetFilter);
 
-  const { chips, studentAchievement } = useStudentAchievement({
+  const { structuredData } = useStudentAchievement({
     studentId,
   });
 
-  // 각 성취도 등급별 개수 계산
-  const achievementCounts = useMemo(() => {
-    if (!chips || !studentAchievement?.data) {
-      return {} as Record<ACHIEVEMENT_GRADE, number>;
-    }
-
-    const counts = ACHIEVEMENT_GRADES.reduce(
-      (acc, grade) => {
-        acc[grade] = 0;
-        return acc;
-      },
-      {} as Record<ACHIEVEMENT_GRADE, number>,
-    );
-
-    chips.forEach((chip) => {
-      const achievement = studentAchievement.data.find(
-        (ach) => ach.typeChipId === chip.id,
-      );
-      if (achievement?.achievement) {
-        counts[achievement.achievement]++;
-      }
-    });
-
-    return counts;
-  }, [chips, studentAchievement]);
-
+  // structuredData에서 계산된 성취도별 개수 사용
+  const achievementCounts = structuredData.achievementCounts;
   return (
     <div css={filterStyle}>
       <div className="filter">
-        <select
-          onChange={(e) => setFilter({ gradeKey: e.target.value })}
+        <Select
+          placeholder="학년 선택"
+          onValueChange={(value) => setFilter({ gradeKey: value })}
           value={gradeKey}
         >
           {grades?.map((grade) => (
-            <option key={grade.key} value={grade.key}>
+            <SelectItem key={grade.key} value={grade.key}>
               {grade.name}
-            </option>
+            </SelectItem>
           ))}
-        </select>
+        </Select>
+
         <div className="switch">
           <Switch
-            onCheckedChange={(checked) =>
-              setFilter({ isRecommendOnly: checked })
-            }
+            onCheckedChange={(checked) => {
+              setFilter({ isRecommendOnly: checked });
+            }}
             checked={isRecommendOnly}
           />
           <span>추천 유형만 보기</span>
@@ -85,13 +62,13 @@ export const Filter = ({ grades }: { grades: Grade[] }) => {
               grade={grade}
               id={`filter-${grade}`}
               checked={achievementGrades.includes(grade)}
-              onChecked={(e) =>
+              onChecked={(e) => {
                 setFilter({
                   achievementGrades: e.target.checked
                     ? [...achievementGrades, grade]
                     : achievementGrades.filter((g) => g !== grade),
-                })
-              }
+                });
+              }}
             />
             <span>{achievementCounts[grade] || 0}개</span>
           </div>

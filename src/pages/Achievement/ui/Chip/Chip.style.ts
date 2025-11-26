@@ -57,7 +57,7 @@ export const chipStyle = ({ grade }: { grade: ACHIEVEMENT_GRADE }) => css`
 
 export const chipStarStyle = css`
   position: absolute;
-  z-index: 2;
+  z-index: 20;
   top: -6px;
   right: -6px;
 `;
